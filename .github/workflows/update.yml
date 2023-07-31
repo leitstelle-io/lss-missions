@@ -1,0 +1,70 @@
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron:  '*/30 * * * *'
+
+name: Fetch Missions and Events
+jobs:
+  fetch_missions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Process URLs
+        run: |
+          mkdir -p missions
+          URLS=(
+            "https://www.missionchief-australia.com/einsaetze.json"
+            "https://www.operador193.com/einsaetze.json"
+            "https://www.operacni-stredisko.cz/einsaetze.json"
+            "https://www.leitstellenspiel.de/einsaetze.json"
+            "https://www.alarmcentral-spil.dk/einsaetze.json"
+            "https://www.centro-de-mando.es/einsaetze.json"
+            "https://www.hatakeskuspeli.com/einsaetze.json"
+            "https://www.operateur112.fr/einsaetze.json"
+            "https://www.operatore112.it/einsaetze.json"
+            "https://www.missionchief-japan.com/einsaetze.json"
+            "https://www.missionchief-korea.com/einsaetze.json"
+            "https://www.centro-de-mando.mx/einsaetze.json"
+            "https://www.meldkamerspel.com/einsaetze.json"
+            "https://www.nodsentralspillet.com/einsaetze.json"
+            "https://www.operatorratunkowy.pl/einsaetze.json"
+            "https://www.jogo-operador112.com/einsaetze.json"
+            "https://www.jocdispecerat112.com/einsaetze.json"
+            "https://www.dispetcher112.ru/einsaetze.json"
+            "https://www.larmcentralen-spelet.se/einsaetze.json"
+            "https://www.112-merkez.com/einsaetze.json"
+            "https://www.dyspetcher101-game.com/einsaetze.json"
+            "https://www.missionchief.co.uk/einsaetze.json"
+            "https://www.missionchief.com/einsaetze.json"
+            "https://www.dispecerske-centrum.com/einsaetze.json"
+          )
+          for url in "${URLS[@]}"; do
+            echo "Fetching URL $url"
+            FILENAME=$(echo "$url" | sed -e 's|https://||' -e 's|www.||' -e 's|/.*||' -e 's|\.|-|g')
+            curl -X GET $url > missions/${FILENAME}.json
+          done
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: files
+          path: missions
+
+      - name: Check json syntax
+        uses: limitusus/json-syntax-check@v1
+        with:
+          pattern: "\\.json$"
+
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "ci: update mission files"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
