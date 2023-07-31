@@ -5,3 +5,5 @@
 [![.github/workflows/update.yml](https://github.com/lostdesign/lss-missions/actions/workflows/update.yml/badge.svg)](https://github.com/lostdesign/lss-missions/actions/workflows/update.yml)
 
 This repo includes all missions and event data from lss-based games.
+
+Inspired by [Piet2001](https://github.com/Piet2001/Missionfiles-All-Versions)
