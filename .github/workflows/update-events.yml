@@ -7,7 +7,7 @@ on:
 
 name: Fetch Events
 jobs:
-  fetch_missions:
+  fetch_events:
     runs-on: ubuntu-latest
     permissions:
       contents: write
