@@ -3,9 +3,9 @@ on:
     branches:
       - main
   schedule:
-    - cron:  '*/30 * * * *'
+    - cron:  '59 * * * *'
 
-name: Fetch Missions and Events
+name: Fetch Missions
 jobs:
   fetch_missions:
     runs-on: ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: files
+          name: missions
           path: missions
 
       - name: Check json syntax

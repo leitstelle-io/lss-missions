@@ -1,0 +1,70 @@
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron:  '30 * * * *'
+
+name: Fetch Events
+jobs:
+  fetch_missions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Process URLs
+        run: |
+          mkdir -p events
+          URLS=(
+            "https://www.missionchief-australia.com/alliance_event_types.json"
+            "https://www.operador193.com/alliance_event_types.json"
+            "https://www.operacni-stredisko.cz/alliance_event_types.json"
+            "https://www.leitstellenspiel.de/alliance_event_types.json"
+            "https://www.alarmcentral-spil.dk/alliance_event_types.json"
+            "https://www.centro-de-mando.es/alliance_event_types.json"
+            "https://www.hatakeskuspeli.com/alliance_event_types.json"
+            "https://www.operateur112.fr/alliance_event_types.json"
+            "https://www.operatore112.it/alliance_event_types.json"
+            "https://www.missionchief-japan.com/alliance_event_types.json"
+            "https://www.missionchief-korea.com/alliance_event_types.json"
+            "https://www.centro-de-mando.mx/alliance_event_types.json"
+            "https://www.meldkamerspel.com/alliance_event_types.json"
+            "https://www.nodsentralspillet.com/alliance_event_types.json"
+            "https://www.operatorratunkowy.pl/alliance_event_types.json"
+            "https://www.jogo-operador112.com/alliance_event_types.json"
+            "https://www.jocdispecerat112.com/alliance_event_types.json"
+            "https://www.dispetcher112.ru/alliance_event_types.json"
+            "https://www.larmcentralen-spelet.se/alliance_event_types.json"
+            "https://www.112-merkez.com/alliance_event_types.json"
+            "https://www.dyspetcher101-game.com/alliance_event_types.json"
+            "https://www.missionchief.co.uk/alliance_event_types.json"
+            "https://www.missionchief.com/alliance_event_types.json"
+            "https://www.dispecerske-centrum.com/alliance_event_types.json"
+          )
+          for url in "${URLS[@]}"; do
+            echo "Fetching URL $url"
+            FILENAME=$(echo "$url" | sed -e 's|https://||' -e 's|www.||' -e 's|/.*||' -e 's|\.|-|g')
+            curl -X GET $url > events/${FILENAME}.json
+          done
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: events
+          path: events
+
+      - name: Check json syntax
+        uses: limitusus/json-syntax-check@v1
+        with:
+          pattern: "\\.json$"
+
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "ci: update event files"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
