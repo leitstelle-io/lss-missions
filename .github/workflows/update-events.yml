@@ -62,9 +62,10 @@ jobs:
         with:
           pattern: "\\.json$"
 
-      - name: Push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Prettify code & push changes
+        uses: creyD/prettier_action@master
         with:
+          prettier_options: --write **/*.{js,md,json}
           commit_message: "ci: update event files"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
